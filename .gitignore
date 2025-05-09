@@ -1,0 +1,27 @@
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.synctex.gz
+*.toc
+
+# Editor-specific files
+*.swp            # Vim swap files
+*.swo            # Vim swap files
+*.sublime-workspace
+*.sublime-project
+.idea/           # IntelliJ IDEA
+.vscode/         # Visual Studio Code
+*.vscode/
+*.DS_Store      # macOS specific
+Thumbs.db       # Windows specific
+
+# Backup files
+*~              # Backup files created by some editors (e.g., Emacs)
