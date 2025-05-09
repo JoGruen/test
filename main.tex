@@ -1,0 +1,111 @@
+\documentclass[a4paper, 10pt]{article}
+
+% Package for mathematical symbols and equations
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Page layout and margin adjustments
+\usepackage[a4paper,textwidth=15cm]{geometry}
+
+% Title and author customizations
+\usepackage{titling}
+\usepackage{fancyhdr}
+\usepackage{lipsum} % For example text
+
+% Title formatting
+\pretitle{\begin{center}\LARGE\bfseries}  % Larger title text
+\posttitle{\end{center}}
+\preauthor{\begin{center}\large}          % Smaller author text
+\postauthor{\end{center}}
+
+% Header/footer settings (optional, can be adjusted)
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\thetitle}
+\fancyhead[C]{\theauthor}
+\fancyfoot[C]{\thepage}
+
+\title{Near Field Holography Using Neural Radiance Fields}
+\author{JG}
+
+\begin{document}
+
+% Title
+\maketitle
+
+% Abstract or introduction section
+\begin{abstract}
+Phase retrival in near-field holography is a non-linear ill-posed problem as it requires to reconstruct phase and absorption from the measured squared magnitued. 
+Commonly, all projections are processed independently and then a tomographic algorithm is employed to reconstruct the three dimensional volume. 
+Within this paper we present a novel approach to directly solving the 3D tomographic problem from the holographic measurements.
+Therefore, we are using neural radiance fields, which have shown promissing results for CT reconstructions. 
+End-to-end learning, i.e. direct estimation of the object, leads to an inherit regularization by three dimensional consistency since the all estimated phase reconstructions are now coupled. 
+
+\end{abstract}
+
+% Introduction section
+\section{Introduction}
+To analyze weakly absorbing materials, such as soft-tissues or objects in nanometer scale, with X-ray tomography over the last decades phase contrast methods have been developed. 
+This technique measures the overlay of the probe and the interaction with the object, which leads to small absortions and strong phase shifts. 
+Since the sensors are only able to measure the squared amplitude of the signal, we have to reconstruct the both, the phase shift and the amplitude from a single measurement. 
+To performe phase shift tomography the common approach is to first reconstruct the projections for all angles and secondly applying tomographic algorithms, such as filtered back-projection (FBP) or simultaneous algebraic reconstruction technique (SART). 
+
+\section{Method}%
+\label{sec:Method}
+\subsection{Fresnel Propagation}
+The interaction of an object with X-rays are described by the complex refractive index
+\begin{align}
+	n \left( x,y,z \right) = 1 - \beta \left( x,y,z \right) + i \delta \left( x,y,z \right),
+	\label{eq:refractive-index}
+\end{align}
+where $\left( x,y,z \right) \in \mathbb{R}^{3}$ denotes the spatial coordinate, $\beta \in \mathbb{R}$ the absorption, $\delta \in \mathbb{R}$ the phase shift, and $i$ the imaginary unit.
+Assuming that the thin object approximation holds, i.e. only a single scattering event occures per X-ray (? to verify), the interaction of the X-rays with the object along a line 
+\begin{align}
+	r  = x \cos \left( \theta \right) + y \sin \left( \theta \right)  
+	\label{eq:}
+\end{align}
+can be described as the integral
+\begin{align}
+	\Psi_{\text{exit}} \left( r, z \right) = \exp \left(  
+		- ik \int_{0}^{d} \int_{0}^{d}
+			\left( 
+				\delta \left( x,y,z  \right) +  \beta \left( x,y,z \right) 
+			\right) 
+			\chi 
+			\left( x \cos \left( \theta \right) + y \sin \left( \theta \right) - r \right) dxdy \right) \Psi_{0},
+	\label{eq:thin-object}
+\end{align}
+where $\chi$ describes the dirac-delta function and $\Psi_{0}$ denotes a monochromatic wavefield, which is called probe in the following. 
+After the projection approximation the exit wave (?) $\Psi_{\text{exit}}$ is propagted following the fresnel progation regime as follows 
+\begin{align}
+	\mathcal{I}_{\text{det}} = \left| \mathcal{F}^{-1} \circ \exp\left( -i \pi \frac{k_{x}^{2} + k_{y}^{2}}{\text{Fr}} \right) \circ \mathcal{F}  \circ \Psi_{\text{exit}} \right|^{2}, 
+	\label{eq:Fresnel}
+\end{align}
+$\mathcal{F}$ describes the fourier transform, $\mathcal{F}^{-1}$ its inverse, $\left( k_{x}, k_{y} \right)$ are the coordinates in frequency space, and Fr is the Fresnel number.
+The Fresnel number is defined as 
+\begin{align}
+	\text{Fr} = \frac{\Delta x^{2}}{\lambda z_{12}}
+	\label{eq:fresnel}
+\end{align}
+for parallel beam geometry, where $\Delta x$ is the pixel size, $\lambda$ is the wavelength, and $z_{12}$ is the distance from the object to the detector. \marginpar{wavelength and $k$ relation! And the cone beam and parallel beam stuff has to be defined.}
+Given a set of measurements $\mathcal{I}_{\theta_{i}}$ along angles $\theta_{i} \in \left[ 0, \pi \right)$, $i \in \lbrace 1, \dots , n \rbrace$, $n \in \mathbb{N}$ the objective is to find 
+\begin{align}
+	\arg\min_{\beta, \delta} \sum_{i} \|  \mathcal{I}_{\theta_{i}} - \mathcal{I}_{\text{det}_{\theta_{i}}} \| ^{2}_{2}.
+ 	\label{eq:obj_function}
+\end{align}
+
+\subsection{Neural Refractive Fields}
+Recent advancments in computer vision have shown that the use of Implicit Neural Representations leads to state-of-the-art volumentric reconstructions from a set of two dimensional images of the scene. 
+INR employes a neural network, often a simple MLP, to predict opacity and color values for each spatial position. 
+While earlier approaches were cumbersome to train and missed high spatial frequencies, recently proposed hash-encoding resolved both problems. 
+They have also been introduced in the medical domain and have shown promissing results in computer tomography reconstruction, specifically in sparse angle tomography.
+
+The proposed model uses a learnable hash encoding and afterwards 4 MLP layers with 64 neurons each, and a skip connection between the encoder output and the center MLP layer. 
+The networks output is two dimensional, where the first value is strictly positive and represents the absorption, and the second value is strictly negative representing the phase shift. 
+Compared to the voxel count of the three dimensional volume this approach has less learnable parameters, since we assume that the measured object shows some lower dimensional structures. (? das hier ausführen)
+A schematic representation of the model is depicted in Figure \ref (?). 
+Given an angle $\theta_{i}$, we are sampling a ray $r_{j}$ for each pixel on the detector and sample each ray by $n$ evenly spaced points.
+Each point is now feeded into the neural network, then the ray integral is computed and the fresnel propagation is applied.
+
+\end{document}
+
