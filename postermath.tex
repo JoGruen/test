@@ -1,0 +1,93 @@
+\documentclass[a1paper, landscape,20pt]{extarticle}
+
+\usepackage[left=3cm,right=3cm,top=0cm,bottom=0cm]{geometry}
+
+\usepackage{newtxtext,newtxmath}   % Better math with big integrals
+\usepackage{amsmath,amssymb}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{color}
+
+\everymath{\displaystyle}
+
+% ------------------------------------------------
+% Custom commands
+% ------------------------------------------------
+\newcommand{\im}{\mathrm{i}}
+\newcommand{\RR}{\mathbb{R}}
+
+% ------------------------------------------------
+% Itemize customization
+% ------------------------------------------------
+\renewcommand\labelitemi{$\bullet$}   % 1st level
+\renewcommand\labelitemii{$\circ$}    % 2nd level
+% ------------------------------------------------
+
+% \fontsize{24}{28}\selectfont
+\begin{document}
+
+\begin{center}
+    {\Huge \textbf{Mathematical Background}}\\[2cm]
+\end{center}
+
+\begin{multicols}{3}
+% Your content goes here
+
+\section*{Phase Retrieval in Holotomography ---------}
+\begin{itemize}
+    \item Recover the complex valued refractive index 
+    \begin{align*}
+        n \left( x,y,z \right) = 1 - \beta \left( x,y,z \right) + \im \delta \left( x,y,z \right)
+        % \label{eq:refractive-index}
+    \end{align*}
+    from the measured intensity $\mathcal{I}_\mathrm{det} \left( x,y, \varphi \right) \in \RR$.
+    \item Angle $\varphi \in [0,2\pi)$ describes the tomographic rotation of the object around the $y$-axis.
+\end{itemize}
+
+\section*{Forward Model for Fixed Angle $\varphi$}
+\begin{itemize}
+    \item Exiting wave after the object interaction
+    \begin{align}
+	\Psi_{\mathrm{exit}} \left( x,y \right) = \exp \left(  
+		- ik \int_{0}^{d}
+				\delta \left( x,y,z  \right) +  \beta \left( x,y,z \right) 
+		dz \right) \Psi_{0},
+	% \label{eq:thin-object}
+    \end{align}
+    \item 
+    \begin{itemize}
+        \item 
+    \end{itemize}
+    \item Fresnel propagator
+    \begin{align*}
+        \mathcal{D}_{\mathrm{Fr}} = \mathcal{F}^{-1} \circ \exp\left( -i \pi \frac{k_{x}^{2} + k_{y}^{2}}{\text{Fr}} \right) \circ \mathcal{F}  \circ \Psi_{\text{exit}}
+        % \label{eq:Fresnel}
+    \end{align*}
+    \begin{itemize}
+        \item $\mathcal{F}$ and $\mathcal{F}^{-1}$ denote the Fourier and inverse Fourier transform.
+        \item Fresnel number $\text{Fr}$ describes the geometry of the experimental setup.
+        \item Exit wave $\Psi_{\text{exit}}$ after the object interaction.
+    \end{itemize}
+\end{itemize}
+\begin{align}
+	\Psi_{\text{exit}} \left( r, z \right) = \exp \left(  
+		- ik \int_{0}^{d} \displaystyle \int_0^1
+			\left( 
+				\delta \left( x,y,z  \right) +  \beta \left( x,y,z \right) 
+			\right) 
+			\chi 
+			\left( x \cos \left( \theta \right) + y \sin \left( \theta \right) - r \right) dxdy \right) \Psi_{0},
+	\label{eq:thin-object}
+    \end{align}
+\begin{align}
+	\mathcal{I}_{\text{det}} = \left| \mathcal{F}^{-1} \circ \exp\left( -i \pi \frac{k_{x}^{2} + k_{y}^{2}}{\text{Fr}} \right) \circ \mathcal{F}  \circ \Psi_{\text{exit}} \right|^{2} 
+	\label{eq:Fresnel}
+\end{align}
+
+\section*{Loss Function}
+Present your loss function.
+
+
+\end{multicols}
+
+\end{document}
