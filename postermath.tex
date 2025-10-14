@@ -1,0 +1,120 @@
+\documentclass[18pt,a1paper,landscape]{extarticle}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{amsmath, amssymb, physics}
+\usepackage{parcolumns}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{lmodern}
+\usepackage{graphicx}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\renewcommand{\familydefault}{\sfdefault}
+
+\setlist[itemize]{nosep, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0pt, leftmargin=1em}
+
+
+% --- Font & spacing tweaks ---
+
+% --- Section heading style ---
+\titleformat{\section}
+  {\centering\bfseries\LARGE}
+  {}
+  {0pt}
+  {}
+
+\titlespacing*{\section}{0pt}{0.5em}{0.3em}
+
+\begin{document}
+
+\begin{center}
+  {\huge\bfseries Phase Retrieval and Tomography in Holotomography}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{parcolumns}[rulebetween, colwidths={1=0.33\textwidth, 2=0.33\textwidth, 3=0.33\textwidth}, distance=0.8cm]{3}
+
+% --- Column 1 ---
+\colchunk{
+\section*{Phase Retrieval and Tomography}
+
+\begin{itemize}
+  \item Recover the complex-valued refractive object 
+  \[
+    \tilde{O}(x,y,z) = \delta(x, y, z) - i \beta(x, y, z)
+  \]
+  from measured intensity 
+  \(
+    \mathcal{I}_{\text{det},\phi}(x, y) \in \mathbb{R}.
+  \)
+  \item $\delta$: phase shift; $\beta$: absorption.
+  \item $\phi \in [0, \pi)$: rotation of object around the $y$-axis.
+\end{itemize}
+}
+
+% --- Column 2 ---
+\colchunk{
+\section*{Forward Model for Fixed Angle}
+
+\begin{itemize}
+  \item Exit wave after object interaction:
+  \[
+    \Psi_{\text{exit}}(\tilde{O}, \Psi_0)(x,y) =
+    \exp\!\left(-i k \!\int_{\mathbb{R}}\! \tilde{O}(x,y,z)\, \mathrm{d}z \right)
+    \Psi_0(x,y)
+  \]
+  where $\Psi_0(x,y)$ is the incoming field, and $k = 2\pi / \lambda$ is the wavenumber.
+  \item Fresnel propagator (nonlinear in $\tilde{O}$):
+  \[
+    \mathcal{D}_{\text{Fr}}(\Psi_{\text{exit}}) =
+    \mathcal{F}^{-1}\!\left(
+      e^{-i\pi (k_x^2 + k_y^2) / \mathrm{Fr}}
+      \mathcal{F}(\Psi_{\text{exit}})
+    \right)
+  \]
+  where $\mathrm{Fr}$ is the Fresnel number.
+\end{itemize}
+}
+
+% --- Column 3 ---
+\colchunk{
+\section*{Models}
+
+\begin{itemize}
+  \item Hash encoder: 16 levels, hashmap size $2^{21}$ (object), $2^{16}$ (probe).
+  \item MLPs $\mathrm{INR}_{\text{Sample}}$ and $\mathrm{INR}_{\text{Probe}}$:
+        4 layers of size 64 and 32.
+\end{itemize}
+
+\section*{Loss Function}
+
+\[
+\begin{aligned}
+L(\tilde{O}_{\text{pred}}, \Psi_{0,\text{pred}}, 
+  \mathcal{I}_{\text{det},\phi}, \Psi_{0,\text{det}}) 
+  =& \norm{
+    \sqrt{\mathcal{I}_{\text{det},\phi}} -
+    \abs{\mathcal{D}_{\text{Fr}}\big(
+      \Psi_{\text{exit}}(\tilde{O}_{\text{pred}}, \Psi_{0,\text{pred}})
+    \big)}
+  }_{L_2}^2 \\
+  &+ \alpha\, \mathrm{softmin}(\Psi_{0,\text{pred}}, \Psi_{0,\text{det}}) \\
+  &+ \beta\, R_1(\tilde{O}_{\text{pred}}) + \gamma\, R_2(\Psi_{0,\text{pred}})
+\end{aligned}
+\]
+
+where $R_1, R_2$ are regularizers (weighted by $\beta, \gamma > 0$).
+
+\section*{Optimization}
+\begin{itemize}
+  \item Optimize $\mathrm{INR}$ parameters using AdamW.
+  \item Learning rate scheduler + early stopping.
+\end{itemize}
+}
+
+\end{parcolumns}
+
+\end{document}
+
