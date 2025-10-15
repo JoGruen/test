@@ -28,22 +28,22 @@
 % Two addresses (uncomment and modify for two-address case).
 % ----------------------------------------------------------
 \name{
-	Johannes Gruen$^{1}$\thanks{We acknowledge DESY (Hamburg, Germany), a member of the Helmholtz Association HGF, for the provision of experimental facilities. Parts of this research were carried out at the PETRA III beamline P05: Beamtime-ID (11019330).
+	Johannes Gruen$^{1}$\thanks{We acknowledge DESY (Hamburg, Germany), a member of the Helmholtz Association HGF, for the provision of experimental facilities, and DASHH, Data Science in Hamburg - Helmholtz Graduate School  for the Structure of Matter, for financial support. Parts of this research were carried out at the PETRA III beamline P05: Beamtime-ID (11019330).
 	This research was supported in part through the Maxwell computational resources operated at DESY. This research was supported by Hi-Acts, an innovation platform under the grant of the Helmholtz Association HGF.}, 
-	Sebastian Eberle$^{1,2}$, 
-	Imke Greving$^{4}$, 
-	??? \\
-	Silja Flenner$^{4}$, 
-	Martin Burger$^{1,2}$, 
-	Christian G. Schroer$^{1,3}$,
+	Sebastian Eberle$^{1}$, 
+	Imke Greving$^{2}$,
+	Silja Flenner$^{2}$, 
+	Martin Burger$^{3,4}$, 
+	Christian G. Schroer$^{1,3,5}$,
 	Johannes Hagemann$^{1}$
 }
 
 \address{
 	$^{1}$Center for X-Ray and Nano Science CXNS, Deutsches Elektronen Synchroton DESY, \\
-	$^{2}$Department Mathematik, Universität Hamburg\\ 
-	$^{3}$Department Physik, Universität Hamburg\\ 
-	$^{4}$ Institute of Materials Physics, Helmholtz-Zentrum Hereon
+	$^{2}$ Institute of Materials Physics, Helmholtz-Zentrum Hereon\\
+	$^{3}$Helmholtz Imaging, Deutsches Elektronen Synchroton DESY\\ 
+	$^{4}$Department Mathematik, Universität Hamburg\\ 
+	$^{5}$Department Physik, Universität Hamburg
 }
 \begin{document}
 %\ninept
@@ -52,9 +52,9 @@
 %
 \begin{abstract}
 X-ray near-field holo-tomography enables non-destructive, in-situ reconstruction of the complex refractive index at nanometer-scale resolution.
-Traditionally, this process involves two separate steps: first retrieving projected phase for different rotation angles, then applying tomographic reconstruction to obtain a 3D volume from 2D projections.
+Traditionally, this process involves two separate steps: first retrieving the projected phase for different rotation angles, then applying tomographic reconstruction to obtain a 3D volume from 2D projections.
 Both steps are ill-posed inverse problems and separating them leads to information loss, due to reconstruction errors.
-Recent advances in implicit neural representations (INR)s have demonstrated remarkable capabilities in scene rendering and tomographic reconstruction.
+Recent advances in implicit neural representations (INRs) have demonstrated remarkable capabilities in scene rendering and tomographic reconstruction.
 In this work, we propose a unified INR-based framework that jointly solves the phase retrieval and tomographic reconstruction problems.
 This joint formulation enforces 3D consistency, resulting in significantly improved phase and volumetric reconstructions.
 Moreover, INRs provide substantial data compression, facilitating efficient storage and processing.
@@ -99,7 +99,7 @@ In this work, we demonstrate that implicit neural representations provide a powe
 \section{Method}
 \begin{figure*}
 	\centering
-	\includegraphics[width=1\linewidth]{images/overview.pdf}
+	\includegraphics[width=1\linewidth]{images/overview.png}
 	\caption{Left: Measurement process.
 		Object is rotated while measuring, leading to angular dependent holograms.
 		Center: Description of the ray sampling.
@@ -118,17 +118,16 @@ Therefore, the objective is to reconstruct the refractive index of the object
 	\label{eq:refractive-index}
 \end{align}
 where $\delta \in \mathbb{R}_{\leq 0}$ denotes the phase shift and $\beta \in \mathbb{R}_{\geq 0}$ the absorption property at position $\left( x,y,z \right) \in \mathbb{R}^{3}$.  
-The reconstruction is based on a set of measured intensities $\mathcal{I}_{\text{det}, \varphi} \left( x,y \right) \in \mathbb{R}_{\geq 0}$, where $\varphi \in \left[ 0, \pi \right)$ denotes the rotation angle of the object around the $y$-axis.  
+The reconstruction is based on a set of measured intensities $\mathcal{I}_\varphi \left( x,y \right) \in \mathbb{R}_{\geq 0}$, where $\varphi \in \left[ 0, \pi \right)$ denotes the rotation angle of the object around the $y$-axis.  
 The refractive index is linked to the measured intensity via the following forward model:
 
-Assuming $\varphi = 0$, i.e. the incident rays are parallel to the $z$-axis, the interaction of the incoming wave field $\Psi_{0} \left( x,y \right)$ with the object is modeled as  
+The interaction of the incoming wave field $\Psi_{0} \left( x,y \right)$ with the object is modeled as
 \begin{align}
-	\Psi_{\text{exit}} \left( O \right) \left( x,y \right) = 
-	\exp \left( - \mathrm{i}k  \int_{\mathbb{R}} O \left( x,y,z \right) \mathrm{d}z \right) 
+	\Psi_{\text{exit}, \varphi} \left( O \right) \left( x,y \right) =
+	\exp \left( - \mathrm{i}k  \int_{\ell_{\varphi, x, y}} O \left( \x \right) \mathrm{d}\x \right) 
 	\Psi_{0}\left( x,y \right),
-	\label{eq:thin-object}
 \end{align}
-which is commonly referred to as the thin-object approximation~\cite{paganinCoherentXrayOptics2006a}.  
+where $\ell_{\varphi, x, y}$ denotes the line corresponding to a ray passing through the point $\left( x,y \right)$ at angle $\varphi$. This is commonly referred to as the thin-object approximation~\cite{paganinCoherentXrayOptics2006a}.  
 
 Propagation of the wavefield through free space is described by the Fresnel approximation:  
 \begin{align}
@@ -142,7 +141,7 @@ Propagation of the wavefield through free space is described by the Fresnel appr
 where $\mathcal{F}$ and $\mathcal{F}^{-1}$ denote the Fourier transform and its inverse, and the Fresnel number $\text{Fr}$ characterizes the geometry of the experimental setup \cite{paganinCoherentXrayOptics2006a}.
 While Fresnel propagation yields a complex-valued field, the detector can only record the corresponding intensities
 \begin{align}
-	\mathcal{I}_{\text{det}} = \left| \mathcal{D}_{\text{Fr}} \left( O \right) \right|^{2}.
+	\mathcal{I} = \left| \mathcal{D}_{\text{Fr}} \left( O \right) \right|^{2}.
 \end{align}
 
 \subsection{Implicit Neural Representation}
@@ -181,28 +180,28 @@ For further details, we refer to Müller~\textit{et~al.}~\cite{mullerInstantNeur
 During the training we minimize the loss function 
 \begin{equation}
 	\begin{split}
-\mathcal{L}\!\left( O_{\mathrm{pred}}, \mathcal{I}_{\mathrm{det}, \varphi} \right)
+\mathcal{L}\!\left( O_{\mathrm{pred}}, \mathcal{I}_\varphi \right)
  = &\, 
  \left\|
  \left|
  \mathcal{D}_{\mathrm{Fr}}\!\left(
- \Psi_{\mathrm{exit}}\!\left(
+ \Psi_{\mathrm{exit}, \varphi}\!\left(
  O_{\mathrm{pred}}
  \right)
  \right)
  \right|
  -
- \sqrt{\mathcal{I}_{\mathrm{det}, \varphi}}
+ \sqrt{\mathcal{I}_\varphi}
  \right\|_{L_{2}}^{2} \\[0.5em]
    & + \alpha\, \mathrm{TV}\!\left(
- \Psi_{\mathrm{exit}}\!\left(
+ \Psi_{\mathrm{exit}, \varphi}\!\left(
  O_{\mathrm{pred}}
  \right)
  \right),
  \label{eq:loss}
 \end{split}
 \end{equation}
-where $\alpha \in \mathbb{R}_{+}^{2}$, and the total variation norm is computed independently for the real and imaginary parts of $\Psi_{\mathrm{exit}}\!\left( \tilde{O}_{\mathrm{pred}} \right)$.  
+where $\alpha \in \mathbb{R}_{+}^{2}$, and the total variation norm is computed independently for the real and imaginary parts of $\Psi_{\mathrm{exit}, \varphi}\!\left( \tilde{O}_{\mathrm{pred}} \right)$.  
  
 Training is performed using the AdamW optimizer with a learning-rate of \num{e-2} and a learning-rate scheduler that halves the rate if the loss does not improve for $300$ angles \cite{loshchilovDecoupledWeightDecay2019}.
 The training is stopped after $4000$ steps or if the learning-rate is below \num{e-5}.
@@ -234,6 +233,6 @@ The input holograms are flat-field corrected as described in Dora~\textit{et~al.
 
 \label{sec:refs}
 \bibliographystyle{IEEEbib}
-\bibliography{strings,refs}
+\bibliography{refs}
 
 \end{document}
