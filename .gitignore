@@ -12,6 +12,9 @@
 *.synctex.gz
 *.toc
 
+# Exclude specific generated PDF
+!icassp/images/overview.pdf
+
 # Editor-specific files
 *.swp            # Vim swap files
 *.swo            # Vim swap files
