@@ -12,7 +12,7 @@
 
 % Title.
 % ------
-\title{Near-Field Holotomography Reconstruction Using Implicit Neural Representations}
+\title{Near-Field X-Ray Holotomography Reconstruction Using Implicit Neural Representations}
 %
 % Single address.
 % ---------------
@@ -51,7 +51,7 @@
 \maketitle
 %
 \begin{abstract}
-X-ray near-field holo-tomography enables non-destructive, in-situ reconstruction of the complex refractive index at nanometer-scale resolution.
+X-ray near-field holo-tomography enables non-destructive, in-situ reconstruction of the 3D volume at nanometer-scale resolution.
 Traditionally, this process involves two separate steps: first retrieving the projected phase for different rotation angles, then applying tomographic reconstruction to obtain a 3D volume from 2D projections.
 Both steps are ill-posed inverse problems and separating them leads to information loss, due to reconstruction errors.
 Recent advances in implicit neural representations (INRs) have demonstrated remarkable capabilities in scene rendering and tomographic reconstruction.
@@ -67,17 +67,18 @@ X-ray near-field holo-tomography, Implicit neural representations
 \section{Introduction}
 \label{sec:intro}
 X-ray computed tomography (CT) is a widely employed technique for reconstructing three-dimensional (3D) volumes from two-dimensional (2D) projection data.
-Conventional CT relies on absorption contrast, which diminishes with increasing energy. 
-At higher energy, however, phase contrast becomes dominant, motivating the development of X-ray near-field holography, which can be modeled using the Fresnel propagation.
-This approach is particularly advantageous for weakly absorbing biological specimens, where absorption contrast is insufficient to reveal structural details, but is also used for characterization of function materials \cite{vesely3DXrayNanotomography2021a,flennerHardXrayNanoholotomography2020b,gerhardtThreedimensionalArchitectureLinearized2025,reimersDevelopmentBioreactorCoupledFlowCell2023}.
+Conventional CT relies on absorption contrast, which only works on sufficiently large features. 
+In the nanometer regime, however, phase contrast becomes dominant, motivating the development of X-ray near-field holography, which can be modeled using the Fresnel propagation.
+This approach to microscopy is particularly advantageous for weakly absorbing biological specimens, where absorption contrast is insufficient to reveal structural details, but is also used for characterization of functional materials \cite{vesely3DXrayNanotomography2021a,flennerHardXrayNanoholotomography2020b,gerhardtThreedimensionalArchitectureLinearized2025,reimersDevelopmentBioreactorCoupledFlowCell2023}.
 
 In this setting, the conventional tomographic reconstruction problem is augmented by an additional phase retrieval problem, which must be solved for each projection image.
 Phase retrieval is inherently nonlinear and ill-posed, as it seeks to reconstruct the complex-valued refractive index from real-valued intensity measurements.
-Furthermore, the contrast transfer function (CTF) exhibits multiple zeros, corresponding to spatial frequencies with no measurable phase information, which further exacerbates the ill-posedness of the inverse problem.
+Furthermore, the contrast transfer function (CTF) of the Fresnel propagator exhibits multiple zeros, corresponding to spatial frequencies with no measurable phase information, which further exacerbates the ill-posedness of the inverse problem.
 
-A common strategy to mitigate this limitation is to record projections at multiple propagation distances, thereby improving the phase signal, as demonstrated by Cloetens \textit{et~al.}~\cite{cloetensHolotomographyQuantitativePhase1999a}.
+A common strategy to mitigate this limitation is to record projections at multiple propagation distances, as introduced in~\cite{Misell_1973},
+and demonstrated for hard X rays by Cloetens \textit{et~al.}~\cite{cloetensHolotomographyQuantitativePhase1999a}.
 More recently, several studies have shown that it is possible to reconstruct the complex refractive index from measurements acquired at a single propagation distance.
-This is achieved by incorporating prior knowledge, such as background constraints or the assumption of phase-only objects, which can yield accurate and stable reconstructions~\cite{doraArtifactsuppressingReconstructionStrongly2024,fienupReconstructionSupportObject1982,wittwerPhaseRetrievalFramework2022}.
+This is achieved by incorporating prior knowledge, such as physically motivated constraints or other regularizations, which can yield accurate and stable reconstructions~\cite{doraArtifactsuppressingReconstructionStrongly2024,fienupReconstructionSupportObject1982,wittwerPhaseRetrievalFramework2022}.
 
 An alternative approach to introducing priors is to enforce three-dimensional consistency by jointly solving the tomographic reconstruction and phase retrieval problems.
 This coupling imposes a strong constraint on the recovered phase maps, effectively constraining them to be consistent with the underlying 3D structure.
@@ -86,7 +87,7 @@ For non-rotational symmetric objects joint reconstruction also reduces the loss 
 The concept of joint 3D reconstruction is not new.
 As early as 2014, Ruhland \textit{et~al.} proposed and demonstrated such an approach under the assumption of optically weak objects, for which the exponential attenuation model can be linearized~\cite{ruhlandtThreedimensionalPhaseRetrieval2014,ruhlandtThreedimensionalPropagationNearfield2016a}.
 The principal limitation of this method, however, lies in its computational and memory requirements, as the reconstruction volume scales cubically with resolution.
-Given that a typical detector features $2048 \times 2048$ pixels, this quickly becomes prohibitive.
+Given that a typical detector features $2048 \times 2048$ or more pixels, this quickly becomes prohibitive.
 
 A promising alternative is to represent the volume in a continuous, implicit form rather than on a discrete voxel grid~\cite{mildenhallNeRFRepresentingScenes2020a}.
 In this framework, a neural network encodes the volume and can be queried at arbitrary spatial coordinates to predict the corresponding refractive index.
@@ -219,11 +220,12 @@ This results in a total memory footprint of \qty{441}{\mega\byte} compared to \q
 
 To fully sample the Fresnel operator, it has been shown that $N > \frac{1}{\mathrm{Fr}}$ samples are required~\cite{paganinCoherentXrayOptics2006a}.  
 Therefore, the MLP is sampled at each rotation angle along rays on a grid of $N \times N$, with each ray discretized into $N$ points.  
-The rays are then integrated and discretized to perform Fresnel propagation.  
-\section{Experimental Details}
+The rays are then integrated, yielding a projection for a certain angle, which is Fresnel-propagated.
+After evaluating the loss we update the INRs parameter and repeat with another angle.
+\section{Experiments}
 Measurements were conducted at beamline P05 at PETRA~III, located at DESY (Hamburg, Germany) operated by Helmholtz-Center Hereon.
-A Fresnel-zone-plate based setup was used as described by Flenner~\cite{flennerHardXrayNanoholotomography2020b}.
-For demonstration purpose we chose a foraminifera sample, measured at 1584 angles with a Fresnel-number of \num{9.979e-4} at \qty{17}{\keV}~\cite{niEarlyDiagenesisForaminiferal2020}.
+A Fresnel zone plate based setup was used as described by Flenner~\cite{flennerHardXrayNanoholotomography2020b}.
+For demonstration purpose we chose a Foraminifera sample, measured at 1584 angles on a detector with pixel size \qty{6.5}{\micro\meter} with a Fresnel number of \num{9.979e-4} at \qty{17}{\keV}~\cite{niEarlyDiagenesisForaminiferal2020}.
 We compare our proposed approach to a two step approach consisting of a state of the art phase-retrieval algorithm and filtered back projection and evaluate how many angles are necessary for reconstruction~\cite{doraArtifactsuppressingReconstructionStrongly2024}.
 The input holograms are flat-field corrected as described in Dora~\textit{et~al.}~\cite{doraArtifactsuppressingReconstructionStrongly2024}.
 
