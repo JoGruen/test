@@ -205,7 +205,7 @@ For further details, we refer to Müller~\textit{et~al.}~\cite{mullerInstantNeur
 
 \begin{figure*}
 	\centering
-	\includegraphics[width=\textwidth]{images/slices.pdf}
+	\includegraphics[width=0.9\textwidth]{images/slices.pdf}
 	\caption{
 		Comparison of ASRM and FBP and the proposed joint reconstruction for different number of measured holograms, which are depicted in the columns.
 		Overall it seems that the joint reconstruction reduces fringing artifacts, which are typical for single distance phase retrieval.
@@ -275,7 +275,6 @@ The setup leads to a Fresnel number of \num{9.979e-4}.
 Measurements are conducted at \qty{17}{\keV}, yielding a magnification of $29.68$.
 We compare our proposed method to a two step approach consisting of a state-of-the-art phase-retrieval algorithm (ASRM), which uses a refractive representation and gradient based optimization scheme, and filtered back projection (FBP) and evaluate the performance depending on the number of measurements~\cite{doraArtifactsuppressingReconstructionStrongly2024}.
 The input holograms are flat-field corrected as described in Dora~\textit{et~al.} and the hyperparamters of ASRM are optimized~\cite{doraArtifactsuppressingReconstructionStrongly2024}.
-
 \section{Results}
 Figure~\ref{fig:projections} shows the phase and absorption reconstructions for a single projection angle depending on the number of measurements, with angles are equally distributed over a half circle.
 
@@ -298,7 +297,6 @@ The training of the INR currently takes approximately 24 hours on a single NVIDI
 The ASRM reconstruction requires about 6.5 seconds per projection on the same GPU, resulting in an overall runtime of roughly 171 minutes.
 We note that the ASRM reconstruction is highly parallelizable, as each individual reconstruction is independent.
 Furthermore, we expect that the INR training can be further accelerated by distributing it across multiple GPUs.
-
 \section{Conclusion and Outlook}
 In this paper we have shown that end-to-end learning from holograms to a 3D volume leads to improved results in both the 3D reconstructions and the phase and absorption projections, compared to previous two-step approaches. 
 Furthermore, the required disk space is reduced by approximately \( 95\% \), which, considering the evolution of synchrotron radiation sources such as PETRA~IV, will be crucial for efficiently handling the increasing amount of produced data.
@@ -307,8 +305,8 @@ While the presented results are promising, a more comprehensive analysis remains
 Several open questions persist, which we plan to address in future work.
 Of particular importance is the quantitative accuracy of the reconstructions, as this would enable precise material characterization and downstream analysis.
 Furthermore, the stability of the proposed method must be evaluated for larger, non-sparse samples, since the strong volumetric compression inherently enforces smoothness, which might not be valid.
-%To make the approach applicable to a broader range of experimental setups, we plan to extend it to include probe estimation~\cite{nikitinXrayNanoholotomographyReconstruction2024a}.
 
+The code is publicly available at \url{https://github.com/DESY-FS-PETRA/HoloINR}.
 \vfill\pagebreak
 \bibliographystyle{IEEEbib}
 \bibliography{refs}
