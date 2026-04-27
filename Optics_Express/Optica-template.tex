@@ -9,9 +9,9 @@
 
 \begin{document}
 
-\title{Universal manuscript template for Optica Publishing Group journals}
+\title{Holotomography with Probe-Retrieval using Implicit Neural Representations}
 
-\author{Author One,\authormark{1} Author Two,\authormark{2,*} and Author Three\authormark{2,3}}
+\author{Sebastian Eberle,\authormark{1} Martin Burger,\authormark{2,*} Johannes Hagemann,\authormark{2,*} Christian G. Schroer,\authormark{2,*} and Johannes Gruen\authormark{2,3}}
 
 \address{\authormark{1}Peer Review, Publications Department, Optica Publishing Group, 2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
 \authormark{2}Publications Department, Optica Publishing Group, 2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
@@ -22,96 +22,33 @@
 % use {asbstract*} to suppress the copyright line. Copyright information will be added in production
 
 \begin{abstract*} 
-This template contains important information on submissions to Optica Publishing Group journals. We encourage authors to focus foremost on their content and not on formatting. The template is provided as a guide, but following the visual styling is optional. Each manuscript will be formatted in a consistent way during production. Authors also have the option to \href{https://opticaopen.org}{submit articles} to the Optica Publishing Group preprint server, \href{https://opticaopen.org/figshare}{Optica Open}. You may find it helpful to use our optional \href{https://preflight.paperpal.com/partner/optica/opticapublishinggroupjournals}{Paperpal manuscript readiness check}  and \href{https://languageediting.optica.org/}{language polishing service}. Note that copyright and licensing information should not be added to your journal or Optica Open manuscript. 
-
+Abstract
 \end{abstract*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%  body  %%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
- We encourage authors preparing submissions to focus foremost on their content and not on formatting. This template is provided as a guide, but following the visual styling is optional. Each manuscript will be formatted in a consistent way during production. Authors also have the option to  \href{https://opticaopen.org}{submit articles} to the Optica Publishing Group preprint server, \href{https://preprints.opticaopen.org}{Optica Open}. You may find it helpful to use our optional \href{https://preflight.paperpal.com/partner/optica/opticapublishinggroupjournals}{Paperpal} manuscript readiness check and \href{https://languageediting.optica.org/}{language polishing service}.  
-
-\section{Corresponding author}
-
-We require manuscripts to identify only a single corresponding author. The corresponding author typically is the person who submits the manuscript and handles correspondence throughout the peer review and publication process. Alternatively, you may choose not to identify a corresponding author and instead use an author note to indicate equal author contributions. Only the corresponding author will have an asterisk attached to their e-mail address. Additional co-author e-mail addresses will have a superscript number in the numerical order of the affiliations. 
-
-\begin{verbatim}
-\author{Author One\authormark{1} and 
-Author Two\authormark{2,*}}
-
-\address{\authormark{1}Peer Review, Publications Department,
-Optica Publishing Group, 2010 Massachusetts Avenue NW,
-Washington, DC 20036, USA\\
-\authormark{2}Publications Department, Optica Publishing Group,
-2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
-
-\email{\authormark{*}xyz@optica.org}
-\end{verbatim}
-
-This format will generate the following appearance:  
-
-\bigskip
-
-\author{Author One\authormark{1} and Author Two\authormark{2,*}}
-
-\address{\authormark{1}Peer Review, Publications Department,
-Optica Publishing Group, 2010 Massachusetts Avenue NW,
-Washington, DC 20036, USA\\
-\authormark{2}Publications Department, Optica Publishing Group,
-2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
-%\authormark{3}xyz@optica.org}
-
-\email{\authormark{*}xyz@optica.org}}
-
-\medskip
-
-If other statements about author contribution and contact are needed, they can be added in addition to the corresponding author designation.
-\begin{verbatim}
-\author{Author One\authormark{1,$\dag$} and 
-Author Two\authormark{2,$\dag$,*}}
-
-\address{\authormark{1}Peer Review, Publications Department,
-Optica Publishing Group, 2010 Massachusetts Avenue NW,
-Washington, DC 20036, USA\\
-\authormark{2}Publications Department, Optica Publishing Group,
-2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
-\authormark{$\dag$}The authors contributed equally to
-this work.\\
-\authormark{*}xyz@optica.org}}
-\end{verbatim}
-
-This format will generate the following appearance:
-
-\medskip
-
-\author{Author One\authormark{1,\dag} and Author Two\authormark{2,\dag,*}}
-
-\address{\authormark{1}Peer Review, Publications Department,
-Optica Publishing Group, 2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
-\authormark{2}Publications Department, Optica Publishing Group, 2010 Massachusetts Avenue NW, Washington, DC 20036, USA\\
-\authormark{\dag}The authors contributed equally to this work.\\
-\authormark{*}xyz@optica.org}
-\medskip
-
-\section{Abstract}
-The abstract should be limited to approximately 100 words. If the work of another author is cited in the abstract, that citation is written out as, for example, Opt. Express {\bfseries 32}, 32643 (2024), and a separate citation should be included in the body of the text. The first reference cited in the main text must be [1].There is no need to include numbers, bullets, or lists inside the abstract. Do not add the licensing or copyright statement at submission.
-
-\begin{figure}[htbp]
-\centering\includegraphics[width=7cm]{opticafig1}
-\caption{Sample caption (Fig. 2, \cite{Yelin:03}).}
-\end{figure}
+When we want to look into very small objects ranging in the nanometer regime, a well understood approach is X-ray near-field holography, which yields significant magnification by the chosen cone-beam geometry.
+By rotating the sample, we can reconstruct the three-dimensional structure similar to other tomographic imaging techniques.
+But there is a big difference compared to these, as we couple the two ill-posed inverse problems phase retrieval and tomography.
 
 
-\section{Assessing final manuscript length}
+
+
+\section{Methods}
 The Universal Manuscript Template is based on the Express journal layout and will provide an accurate length estimate for \emph{Optics Express}, \emph{Biomedical Optics Express},  \emph{Optical Materials Express}, \emph{Optica Quantum}, and \emph{Optics Continuum}. \emph{Applied Optics}, JOSAA, JOSAB, \emph{Optics Letters}, \emph{Optica}, \emph{Optica Quantum}, \emph{Optics Continuum}, and \emph{Photonics Research} publish articles in a two-column layout. To estimate the final page count in a two-column layout, multiply the manuscript page count (in increments of 1/4 page) by 60\%. For example, 11.5 pages in the Universal Manuscript Template are roughly equivalent to 7 composed two-column pages. Note that the estimate is only an approximation, as treatment of figure sizing, equation display, and other aspects can vary greatly across manuscripts. Authors of Letters may use the length-check template for a more-accurate length estimate.
 
-\section{Figures, tables, and supplementary materials}
+\section{Results on Synthetic Data}
+\section{Results on Real Data}
+
+\section{Discussion}
+\section{Conclusion and Outlook}
 
 \subsection{Figures and tables}
 Figures and tables should be placed in the body of the manuscript. Standard \LaTeX{} environments should be used to place tables and figures:
 \begin{verbatim}
 \begin{figure}[htbp]
 \centering\includegraphics[width=7cm]{opticafig1}
-\caption{Sample caption (Fig. 2, \cite{Yelin:03}).}
+\caption{Sample caption (Fig. 2).}
 \end{figure}
 \end{verbatim}
 
@@ -297,7 +234,7 @@ The commands \verb+\begin{thebibliography}{}+ and \verb+\end{thebibliography}+ f
 \subsection{Formatting reference citations}
 References should be numbered consecutively in the order in which they are referenced in the body of the paper. Set reference callouts with standard \verb+\cite{}+ command or set manually inside square brackets [1].
 
-To reference multiple articles at once, simply use a comma to separate the reference labels, e.g. \verb+\cite{Yelin:03,Masajada:13,Zhang:14}+, produces \cite{Yelin:03,Masajada:13,Zhang:14}.
+To reference multiple articles at once, simply use a comma to separate the reference labels, e.g, produces.
 %Using the \texttt{cite.sty} package will make these citations appear like so: [2--4].
 
 \subsection{Bib\TeX}
@@ -312,10 +249,10 @@ After proofreading the manuscript, compress your .tex manuscript file and all fi
 %%%%%%%%%%%%%%%%%%%%%%% References %%%%%%%%%%%%%%%%%%%%%%%%%
 
 Add references with BibTeX or manually 
-\cite{Zhang:14,OPTICA,FORSTER2007,Dean2006,testthesis,Yelin:03,Masajada:13,codeexample}.
+\cite{gruenXRayNearFieldHolotomography2026}.
 
 %%%%%%%%%% If using BibTeX:
-\bibliography{sample}
+\bibliography{references}
 
 %%%%%%%%%% If preparing manually:
 % \begin{thebibliography}{1}
