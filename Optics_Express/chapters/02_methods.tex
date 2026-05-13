@@ -1,0 +1,100 @@
+\section{Methods}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Physical Model for X-Ray Near-field Holotomography}
+In holotomographic measurements done at synchroton facilities, there are different assumptions and conventions in how to define the forward model.
+We follow Wittwer \textit{et al.} as their framework allows to keep the non-linearity of the forward model and also allows to reconstruct larger phase-shifts \cite{wittwerPhaseRetrievalFramework2022}.
+The sample is characterized via the \textit{refractive index}
+\begin{equation}
+  n(x,y,z) = 1 - \delta(x,y,z) + \im \beta(x,y,z),
+  \label{eq:refr_idx}
+\end{equation}
+where $\delta$ and $\beta$ describe the phase-shifting and absorbtion property of the material at a point $(x,y,z) \in \RR^3$.
+To simplify the notation we define the \textit{refractive object} by
+\begin{equation}
+  O(x,y,z) := \delta(x,y,z)  + \im \beta(x,y,z).  
+\label{eq:refr_obj}
+\end{equation}
+
+We then assume that the model is sufficiently thin to model the interaction with the X-rays via a projection along the rays, which is commonly referred to as \textit{projection
+approximation} \cite[ch.~2.2]{paganinCoherentXrayOptics2006}.
+As all angles in a holotomography scan are acquired consecutively we assume a
+constant probe for the whole dataset, i.e. no dependency on the angle $\phi \in
+[0, \pi)$. 
+The illumination is modeled similar to the object, i.e. for the incoming wave
+field $\Psi_0$ we have
+\begin{equation}
+  \Psi_0 (x,y) = \exp \parens{\im \psi_0(x,y) + a_0(x,y)}.
+\label{eq:}
+\end{equation}
+Multiplying this to the wave field interaction with the object gives us
+\begin{equation}
+  \Psi_\varphi(x,y) = \exp \parens{-\im k \int_{\ell_{\varphi,x,y}}
+  O(\textbf{x})
+\mathrm{d}\mathbf{x}} \Psi_0(x,y).
+\label{eq:exit_wave}
+\end{equation}
+The line along which we integrate
+\begin{equation}
+  \ell_{\varphi,x,y} := \braces{(\hat{x},\hat{y},\hat{z}) \in \RR^3: \hat{y}=y,
+    \,  \cos\hat{x} + \sin{\hat{z}} = x}
+\label{eq:ray_line}
+\end{equation}
+is the set of points of the ray hitting the detector at $(x,y)$ when
+the sample is rotated by $\varphi$.
+Before propagating $\Psi_\varphi$ to the detector we ned to account for the
+geometry of our set up. As depicted in \cref{fig:beam} we have the two important
+distances $z_{01}$ from focal point to the sample and $z_{12}$ between sample and
+detector.
+
+
+\begin{figure}[htbp]
+ \centering\includegraphics[width=7cm]{imgs/Beam_.png}
+ \caption{The aquisition process of holotomography.}
+ % TODO add z01, z02, coordinate system and angle
+ \label{fig:beam}
+\end{figure}
+
+
+
+\begin{itemize}
+  \item big and jumping phase shifts can be reconstructed (important on edges)
+  \item no linearization
+\end{itemize}
+\begin{figure}[htbp]
+\centering\includegraphics[width=7cm]{imgs/Holotomography_.png}
+\caption{The aquisition process of holotomography.}
+\label{fig:holotomo}
+\end{figure}
+\begin{itemize}
+	\item Image of set up already in \ref{fig:holotomo} \ref{fig:beam}
+	\item Equations for the forward model (similar to poster)
+		\subitem refractive object as introduced by \cite{wittwerPhaseRetrievalFramework2022}
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Implicit Neural Representation (INR)}
+Rather similar idea, with much less complexity \cite{rezendeUnsupervisedLearning3D2018}
+Basic Idea \cite{mullerInstantNeuralGraphics2022}
+Application to CBCT \cite{zhaNAFNeuralAttenuation2022}
+Used for Holotomography \cite{gruenXRayNearFieldHolotomography2026}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Optimization}
+\begin{itemize}
+	\item Models and Parameters
+		\subitem Sample as 3D INR
+		\subitem Probe as 2D Array if considered
+	\item Loss function (data fidelity + regularization)
+	\item Multiscale approach allows for faster computation, also one of the
+    advantages of \cite{doraArtifactsuppressingReconstructionStrongly2024}
+	\item Optimization method (AdamW)
+		\subitem tweaks as LR Scheduling, early stopping, gradient clipping
+	\item Implementation relies on \cite{tiny-cuda-nn} and \cite{paszkePyTorchImperativeStyle2019}
+\end{itemize}
