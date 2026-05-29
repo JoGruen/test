@@ -10,12 +10,13 @@ The sample is characterized via the \textit{refractive index}
   n(x,y,z) = 1 - \delta(x,y,z) + \im \beta(x,y,z),
   \label{eq:refr_idx}
 \end{equation}
-where $\delta$ and $\beta$ describe the phase-shifting and absorbtion property of the material at a point $(x,y,z) \in \RR^3$.
+where $\delta$ and $\beta$ describe the phase-shifting and absorbtion property of the material at a point $(x,y,z) \in \R^3$.
 To simplify the notation we define the \textit{refractive object} by
 \begin{equation}
-  O(x,y,z) := \delta(x,y,z)  + \im \beta(x,y,z).  
+  O(x,y,z) := \delta(x,y,z)  - \im \beta(x,y,z).  
 \label{eq:refr_obj}
 \end{equation}
+
 
 We then assume that the model is sufficiently thin to model the interaction with the X-rays via a projection along the rays, which is commonly referred to as \textit{projection
 approximation} \cite[ch.~2.2]{paganinCoherentXrayOptics2006}.
@@ -25,29 +26,42 @@ constant probe for the whole dataset, i.e. no dependency on the angle $\phi \in
 The illumination is modeled similar to the object, i.e. for the incoming wave
 field $\Psi_0$ we have
 \begin{equation}
-  \Psi_0 (x,y) = \exp \parens{\im \psi_0(x,y) + a_0(x,y)}.
+  \Psi_0 (x,y) = \exp \left(  \im \psi_0(x,y) + a_0(x,y) \right)  .
 \label{eq:}
 \end{equation}
 Multiplying this to the wave field interaction with the object gives us
 \begin{equation}
-  \Psi_\varphi(x,y) = \exp \parens{-\im k \int_{\ell_{\varphi,x,y}}
+  \Psi_\varphi(x,y) = \exp \left( -\im k \int_{\ell_{\varphi,x,y}}
   O(\textbf{x})
-\mathrm{d}\mathbf{x}} \Psi_0(x,y).
+\mathrm{d}\mathbf{x} \right)   \, \Psi_0(x,y).
 \label{eq:exit_wave}
 \end{equation}
 The line along which we integrate
 \begin{equation}
-  \ell_{\varphi,x,y} := \braces{(\hat{x},\hat{y},\hat{z}) \in \RR^3: \hat{y}=y,
-    \,  \cos\hat{x} + \sin{\hat{z}} = x}
+  \ell_{\varphi,x,y} := \braces{(\hat{x},\hat{y},\hat{z}) \in \R^3: \hat{y}=y,
+    \,  \hat{x} \cos\varphi + \hat{z} \sin\varphi = x}
 \label{eq:ray_line}
 \end{equation}
+
 is the set of points of the ray hitting the detector at $(x,y)$ when
 the sample is rotated by $\varphi$.
 Before propagating $\Psi_\varphi$ to the detector we ned to account for the
-geometry of our set up. As depicted in \cref{fig:beam} we have the two important
-distances $z_{01}$ from focal point to the sample and $z_{12}$ between sample and
-detector.
-
+geometry of our set up. As depicted in \cref{fig:beam} we have the 
+distances
+\begin{itemize}
+  \item $z_{01}$ between focal point of the beam and sample
+  \item $z_{12}$ between sample and detector
+\end{itemize} 
+which contribute to the \textit{Fresnel number} $\mathrm{Fr}$ and the
+magnification $M = \frac{z_{01}+z_{12}}{z_{01}}$ that gives access to the
+nanometer regime, even if the pixels on the detector are significantly larger.
+Given the wave length $\lambda$ of the illuminating X-rays and a characteristic
+feature size $a$, typically the voxel size in the object, we can write the
+Fresnel number as
+\begin{equation}
+  \mathrm{Fr} = \frac{a^2}{\lambda M z_{12}}.
+\label{eq:Fresnel_nr}
+\end{equation}
 
 \begin{figure}[htbp]
  \centering\includegraphics[width=7cm]{imgs/Beam_.png}
@@ -56,7 +70,27 @@ detector.
  \label{fig:beam}
 \end{figure}
 
+The propagation of the exiting wave field $\Psi_\varphi$ is then described by
+the \textit{Fresnel Propagator} and the measurement \( \mathcal{I}_\mathrm{det}
+\) is the squared magnitude of the propagated wave field, i.e. the phase
+information gets lost
+\begin{align}
+  \mathcal{D}_\mathrm{Fr} \left( \Psi_\varphi \right) &=  \mathcal{F}^{-1} \left( \exp \left( -i \pi \frac{k_x ^2 +
+  k_y ^2}{\mathrm{Fr}} \right) \mathcal{F}\left( \Psi_\varphi \right)   \right)  \\
+  \mathcal{I}_\mathrm{det} &= \left| \mathcal{D}_\mathrm{Fr}\left( \Psi_\varphi \right)  \right| 
+  ^2.
+  \label{eq:propagation}
+\end{align}
+After describing the aquisition physics we want to emphasize our goal is to
+recover the refractive object \(O\) and eventually the incoming wave field \(
+\Psi_{0} \) from the intensity measurements \( \mathcal{I}_\mathrm{det} \), i.e.
+solving the coupled inverse problem of phase retrieval and tomography.
 
+
+
+\subsubsection{{Example Supporting 3D Consistency}}
+Create example that gives the same hologram for one angle, but is
+different in 3D.
 
 \begin{itemize}
   \item big and jumping phase shifts can be reconstructed (important on edges)
@@ -78,6 +112,39 @@ detector.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Implicit Neural Representation (INR)}
+To see even small details of objects, we aim for a resolution as high as possible.
+When using a pixel or voxel representation this comes quadratic or even cubic cost.
+Hence it is desirable to represent the data on a more flexible structure with strong expressivity using less parameters, and more importantly, the number of parameters should not increase polynomially with the resolution.
+The idea of using some neural networks to represent the object is not new and was also applied earlier \cite{rezendeUnsupervisedLearning3D2018, sitzmannImplicitNeuralRepresentations2020}.\\
+This comes at the advantage that the representation is not constrained to a certain grid and can be queried at arbitrary spatial coordinates to obtain the corresponding value of the object.
+A crucial point is of course the choice of the network architecture.
+As e.g. shown in \cite[Fig. 2(a)]{mullerInstantNeuralGraphics2022}, the Lipschitz continuity of multilayer perceptrons (MLPs) with rectified linear unit (ReLU) activation functions does not allow for sharp edges which are substantial in many images and physical objects.
+One way forward was to use other activation functions such as \( x \mapsto \sin(x) \) \cite{sitzmannImplicitNeuralRepresentations2020} or similar which are summarized by Essakine \textit{et al.} \cite{essakineWhereWeStand2025}. 
+
+\subsubsection{Encoding}
+Another approach to omit  is to encode the coordinates before feeding them into a neural network.
+This was done by Mildenhall \textit{et al.} via a \textit{frequency encoding} that encodes each spatial coordinate independently to a vector that looks like
+\begin{equation}
+  \gamma_i(x) = \left( \sin \left( 2^i \pi x \right) , \cos \left( 2^i \pi x
+  \right) \right), \,\, i \in \{0, \dots, L-1\}.
+  \label{eq:freq_encoding}
+\end{equation}
+While the representations with this architecture are powerful and could also be used in holotomography the training process takes a lot of time, which makes them less attractive than the architecture chosen by Müller \textit{et al.} \cite{mullerInstantNeuralGraphics2022}. 
+Solving an inverse problem adds another layer of complexity as the data fidelity can only be validated in measurement space, which makes efficient training even more important.\\
+The object is encoded \textit{spatially} using grids with levels \( 1, \dots, L \) (coarse to fine) for multiple resolutions.
+This is done by saving values at the nodes of the grid in a hash table, which limits the number of parameters. 
+For the coarser grid with fewer nodes we save all the values, but as soon as the number of nodes exceeds the hash table size, we use a hash encoding 
+\begin{equation}
+  h(x) = \left(  \bigoplus_{n=1}^{3} x_i \pi_i  \right) \mod T 
+  \label{eq:}
+\end{equation}
+and lose injectivity in favor of computational efficiency.
+With \( \bigoplus \) we denote the bit-wise XOR operation, by chosing \( \pi=\begin{pmatrix} 1, \ 654 435 761, \ 805 459 861 \end{pmatrix}\) we decorrelate the dimensions and \( T  \) is the size of the hash-table.
+By stochastic arguments the unique mapping on the first levels and the different collisions on the higher levels make this representations robust and for collision handling, we also have an MLP that processes the hash-encoded coordinates to give the final prediction.
+The MLP has 4 layers of \( L F \) neurons each, i.e.
+it only saves a small portion of the total parameters
+
+
 Rather similar idea, with much less complexity \cite{rezendeUnsupervisedLearning3D2018}
 Basic Idea \cite{mullerInstantNeuralGraphics2022}
 Application to CBCT \cite{zhaNAFNeuralAttenuation2022}
@@ -98,3 +165,4 @@ Used for Holotomography \cite{gruenXRayNearFieldHolotomography2026}
 		\subitem tweaks as LR Scheduling, early stopping, gradient clipping
 	\item Implementation relies on \cite{tiny-cuda-nn} and \cite{paszkePyTorchImperativeStyle2019}
 \end{itemize}
+
