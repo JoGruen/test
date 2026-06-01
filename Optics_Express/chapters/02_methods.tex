@@ -31,7 +31,7 @@ field $\Psi_0$ we have
 \end{equation}
 Multiplying this to the wave field interaction with the object gives us
 \begin{equation}
-  \Psi_\varphi(x,y) = \exp \left( -\im k \int_{\ell_{\varphi,x,y}}
+  \Psi_\varphi (O, \Psi_{0})(x,y) = \exp \left( -\im k \int_{\ell_{\varphi,x,y}}
   O(\textbf{x})
 \mathrm{d}\mathbf{x} \right)   \, \Psi_0(x,y).
 \label{eq:exit_wave}
@@ -45,7 +45,7 @@ The line along which we integrate
 
 is the set of points of the ray hitting the detector at $(x,y)$ when
 the sample is rotated by $\varphi$.
-Before propagating $\Psi_\varphi$ to the detector we ned to account for the
+Before propagating $\Psi_\varphi$ to the detector we need to account for the
 geometry of our set up. As depicted in \cref{fig:beam} we have the 
 distances
 \begin{itemize}
@@ -71,24 +71,30 @@ Fresnel number as
 \end{figure}
 
 The propagation of the exiting wave field $\Psi_\varphi$ is then described by
-the \textit{Fresnel Propagator} and the measurement \( \mathcal{I}_\mathrm{det}
+the \textit{Fresnel Propagator} and the measurement \( \mathcal{I}_{\mathrm{det}, \varphi}
 \) is the squared magnitude of the propagated wave field, i.e. the phase
 information gets lost
 \begin{align}
   \mathcal{D}_\mathrm{Fr} \left( \Psi_\varphi \right) &=  \mathcal{F}^{-1} \left( \exp \left( -i \pi \frac{k_x ^2 +
   k_y ^2}{\mathrm{Fr}} \right) \mathcal{F}\left( \Psi_\varphi \right)   \right)  \\
-  \mathcal{I}_\mathrm{det} &= \left| \mathcal{D}_\mathrm{Fr}\left( \Psi_\varphi \right)  \right| 
+        \mathcal{I}_{\mathrm{det}, \varphi} &= \left| \mathcal{D}_\mathrm{Fr}\left( \Psi_\varphi \right)  \right| 
   ^2.
   \label{eq:propagation}
 \end{align}
 After describing the aquisition physics we want to emphasize our goal is to
-recover the refractive object \(O\) and eventually the incoming wave field \(
-\Psi_{0} \) from the intensity measurements \( \mathcal{I}_\mathrm{det} \), i.e.
+recover the refractive object \(O\) and the incoming wave field \(
+\Psi_{0} \) from the intensity measurements \( \mathcal{I}_{\mathrm{det}, \varphi} \), i.e.
 solving the coupled inverse problem of phase retrieval and tomography.
 
 
 
 \subsubsection{{Example Supporting 3D Consistency}}
+
+Still needed? what to do??? \\ 
+
+
+
+
 Create example that gives the same hologram for one angle, but is
 different in 3D.
 
@@ -132,8 +138,8 @@ This was done by Mildenhall \textit{et al.} via a \textit{frequency encoding} th
 While the representations with this architecture are powerful and could also be used in holotomography the training process takes a lot of time, which makes them less attractive than the architecture chosen by Müller \textit{et al.} \cite{mullerInstantNeuralGraphics2022}. 
 Solving an inverse problem adds another layer of complexity as the data fidelity can only be validated in measurement space, which makes efficient training even more important.\\
 The object is encoded \textit{spatially} using grids with levels \( 1, \dots, L \) (coarse to fine) for multiple resolutions.
-This is done by saving values at the nodes of the grid in a hash table, which limits the number of parameters. 
-For the coarser grid with fewer nodes we save all the values, but as soon as the number of nodes exceeds the hash table size, we use a hash encoding 
+This is done by saving values at the nodes \( x \in \mathbb{N}^3 \) of the grid in a hash table, which limits the number of parameters. 
+For coarser grids with fewer nodes we save all the values, but as soon as the number of nodes exceeds the hash table size, we use a hash encoding 
 \begin{equation}
   h(x) = \left(  \bigoplus_{n=1}^{3} x_i \pi_i  \right) \mod T 
   \label{eq:}
@@ -141,28 +147,72 @@ For the coarser grid with fewer nodes we save all the values, but as soon as the
 and lose injectivity in favor of computational efficiency.
 With \( \bigoplus \) we denote the bit-wise XOR operation, by chosing \( \pi=\begin{pmatrix} 1, \ 654 435 761, \ 805 459 861 \end{pmatrix}\) we decorrelate the dimensions and \( T  \) is the size of the hash-table.
 By stochastic arguments the unique mapping on the first levels and the different collisions on the higher levels make this representations robust and for collision handling, we also have an MLP that processes the hash-encoded coordinates to give the final prediction.
-The MLP has 4 layers of \( L F \) neurons each, i.e.
-it only saves a small portion of the total parameters
+The input of the MLP is a vector of size \( L \cdot F \) which we obtain by trilinear interpolation: Every coordinate in our object lies inside exactly one cube per level, and the weighted sum of all the 8 surrounding nodes of these cubes gives the encoded input coordinate for the corresponding level.
+Concatenating these for all levels yields the input vector to the MLP.
+By the big difference in grid size the encoding is capable of representing sharp edges and fine details as well as flat or smooth background regions.
+\\
+The MLP has 4 layers of \( L \cdot F \) neurons each, i.e.
+it only holds a small portion of the total parameters.
+The output of the MLP then is the prediction of \( \delta \) and \(  \beta \) corresponding the phase shift and absorption of the refractive index \eqref{eq:refr_obj}.
+ 
 
 
-Rather similar idea, with much less complexity \cite{rezendeUnsupervisedLearning3D2018}
-Basic Idea \cite{mullerInstantNeuralGraphics2022}
-Application to CBCT \cite{zhaNAFNeuralAttenuation2022}
-Used for Holotomography \cite{gruenXRayNearFieldHolotomography2026}
+% Rather similar idea, with much less complexity \cite{rezendeUnsupervisedLearning3D2018}
+% Basic Idea \cite{mullerInstantNeuralGraphics2022}
+% Application to CBCT \cite{zhaNAFNeuralAttenuation2022}
+% Used for Holotomography \cite{gruenXRayNearFieldHolotomography2026}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Optimization}
+To represent our object in either way it is of course needed to optimize the parameters.
+In our case paramters mean the entries in the lookup-table, weights and biases of the MLP and the pixels-values of the probe.
+As we consider one probe for all angles these are \( n^2 \) pixels which is manageable in terms of computational cost and memory requirement.
+We optimize the parameter by considering the loss function
+
+\begin{equation}
+  \begin{aligned}
+   L(O_\mathrm{pred}, \Psi_\mathrm{pred}, \mathcal{I}_{\mathrm{det}, \varphi}, \mathcal{I}_{\mathrm{det}, \emptyset}) =  & \| 
+   \sqrt{\mathcal{I}_{\mathrm{det}, \varphi}} 
+   - \left|  {\mathcal{D}_\mathrm{Fr}\left( \Psi_\varphi \left( O_\mathrm{pred}, \Psi_\mathrm{pred} \right) \right)  \right|
+   }\|_{L_{2}}^2 \\ 
+                                                                                                                         & + \alpha \mathrm{softmin}\left( \mathcal{D}_\mathrm{Fr}\left( \Psi_\mathrm{pred} \right), \mathcal{I}_{\mathrm{det}, \emptyset }   \right) \\
+                                                                                                                         & +  \beta R_{1}(\Psi_\mathrm{pred}) + \gamma R_{2}(O_\mathrm{pred}) 
+  \end{aligned}
+  \label{eq:loss_fct}
+\end{equation}
+where we have 
 \begin{itemize}
-	\item Models and Parameters
-		\subitem Sample as 3D INR
-		\subitem Probe as 2D Array if considered
-	\item Loss function (data fidelity + regularization)
-	\item Multiscale approach allows for faster computation, also one of the
-    advantages of \cite{doraArtifactsuppressingReconstructionStrongly2024}
-	\item Optimization method (AdamW)
-		\subitem tweaks as LR Scheduling, early stopping, gradient clipping
-	\item Implementation relies on \cite{tiny-cuda-nn} and \cite{paszkePyTorchImperativeStyle2019}
+  \item \( O_\mathrm{pred} \) the prediction of the object
+  \item \( \Psi_\mathrm{pred} \) the predicted incoming wave field
+  \item \( \mathcal{I}_{\mathrm{det}, \varphi} \) the measured hologram
+  \item \( \mathcal{I}_{\mathrm{det}, \emptyset} \) the empty measurement, i.e.
+  without object
+\item \( R_{2} \) and \(  R_{2} \) are regularizing terms on probe and object encoding prior knowledge.
 \end{itemize}
+We furthermore chose the softmin function to make sure the propagated beam matches one of the recorded empty measurements but not necessarily all as the beam might change slightly.
+The loss \eqref{eq:loss_fct} is then optimized jointly for all parameters using \textit{AdamW} for the INR parameters and \textit{Adam} for the probe \cite{kingmaAdamMethodStochastic2017, loshchilovDecoupledWeightDecay2019}.
+\\
+The optimization scheme is that we update all the parameters after the loss evaluation for one angle.
+For the hyperparameter in the loss function \eqref{eq:loss_fct} we can say that \(  \alpha \) has to be chosen large enough that probe and sample are separated and should be weighted more than the data fidelity.
+For the other two, there is a trade-off between the bias introduced by these regularizers and their positive effect on the reconstructions, therefore the choice is not trivial and depends on the quality of the measurements and the structure of object and probe.
+Regularization strategies we apply in the following include \( L_{1}, L_{2} \) and \(  TV \) regularization, as well as the term
+\begin{equation}
+R_{\delta,\beta} (O) = \left\| \left| \frac{\delta}{\beta} \right| - \max \left(  b, \left| \frac{\delta}{\beta} \right| \right)  \right\|_{L_2}^2 +  \left\| \left| \frac{\beta}{\delta} \right| - \max \left(   \frac{1}{a}, \left| \frac{\beta}{\delta} \right| \right) \right\|_{L_2}^2, 
+  \label{eq:d/b_regularization}
+\end{equation}
+which supports a connection the phase shift and absorption of our object \(  O  \) explicitly.
+The values \( a, b \in \mathbb{R} \) are chosen such that we expect \( \frac{\delta}{\beta} \in \left[ a,b \right]  \) depending on the materials we might know and the X-ray energy, but allows for different materials in comparison to other reconstruction methods \cite{TODO}.
+%TODO find single material constraint reco paper 
+\\
+One challenge in our optimization process is that the rendered pixel interact with each other when the waves are propagated through free space, i.e.
+we cannot evaluate the rays independently in measurement space as it is possible for computed tomography \cite{zhaNAFNeuralAttenuation2022}.
+\\
+Even though we do not save voxel values, the number of points we sample is \(  n^3 \) for \( \mathcal{I}_\mathrm{det} \in \mathbb{R}^{n \times n} \).
+As this becomes extremely memory demanding for high resolutions, we limit the number of rays for which we calculate gradients to update the INR.
+We circumvent this by using a multiscale approach similar to \cite{doraArtifactsuppressingReconstructionStrongly2024}, which gives reasonable results after short time which then are improved on higher resolutions.
+To make the training more stable, we use gradient clipping with which we limit the gradient norm to five times the median of the 100 previous gradient norms. Additionally use a learning rate scheduler that halves the step size when the loss does not decrease anymore and ultimately stops if the learning rate reaches \( 10^{-7} \).
+\\
+Our implementation relies on \textit{PyTorch} and \textit{tiny-cuda-nn} \cite{paszkePyTorchImperativeStyle2019, tiny-cuda-nn}.
 
