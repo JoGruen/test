@@ -9,6 +9,12 @@
 \usepackage{hyperref}
 \linenumbers % Turn off line numbering for Optica Open preprint submissions.
 
+\makeatletter
+\renewcommand{\eqref}[1]{\textup{\hyperlink{#1}{Eq.~\tagform@{\ref*{#1}}}}}
+\makeatother\makeatletter
+\renewcommand{\eqref}[1]{\textup{\hyperlink{#1}{Eq.~\tagform@{\ref*{#1}}}}}
+\makeatother
+
 \begin{document}
 
 \title{Joint Single-Distance Holotomography with Probe-Retrieval using Implicit Neural Representations}
