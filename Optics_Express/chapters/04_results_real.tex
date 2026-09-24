@@ -1,4 +1,53 @@
 \section{Results on Real Data} \label{sec:results_real}
-\subsection{Foraminifera}
-Beamline set up at P05, DESY, Hamburg described by \cite{flennerHardXrayNanoholotomography2020}
-\subsection{Slug Brain?}
+The evaluation of the proposed method will be extended to measurement data obtained at the PETRA III beamline P05, located at DESY (Hamburg, Germany), operated by Helmholtz-Center Hereon.
+Setup described in \cref{fig:beam} with different focusing optics used, asking for different 
+capabilities of the algorithms.
+For the second experiment \cref{subsec:tusk}, the diamond coherent refractive lens (CRL) used to focus the beam generates a highly non-smooth probe which makes the flat-field correction approach completely unusable and requires an appropriate modelling of the illumination.
+\subsection{Foraminifera} \label{subsec:foraminifera}
+Sample from \cite{niEarlyDiagenesisForaminiferal2020}.
+\subsubsection{Experiment} \label{subsubsec:fora_experiment}
+measured with a Fresnel zone plate as focusing optics, setup described by \cite{flennerHardXrayNanoholotomography2020}.
+The holotomographic data set contains measurements at 1584 angles from which only every 4th angle is used.
+A magnification of 31.9 is achieved leading to a resolution of \qty{0.2}{\um} in the object.
+Together with the used energy of \qty{17}{\keV}, we end up at a Fresnel number of \num{9.79e-4}.
+
+\subsubsection{Results} \label{subsubsec:fora_results}
+Result plots comparison: INR w/ probe, INR w/ FFC, Tikhonov, ASRM
+\newpage
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Projected_Phase_snail.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Projected_Absorption_snail.pdf}
+    
+
+    \caption{Projections reconstructed from experimental data of a measured foraminifera sample with a Fresnel zone plate.}
+    \label{fig:fora-proj}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Phase_snail.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Absorption_snail.pdf}
+    
+
+    \caption{Center slices reconstructed from experimental data of a measured foraminifera sample with a Fresnel zone plate.}
+    \label{fig:fora-sli}
+\end{figure}
+
+\subsection{Tusk} \label{subsec:tusk}
+The data set was recorded for near-field ptychography [citation], i.e. it consists of 16 holotomographic data sets, where the sample is shifted differently in each of the 16 data sets.
+We will hence only use one of these positions to reconstruct the sample, but have a good reference with the ptychographic reconstructions, which also reconstruct a probe that we will use for the initialization.
+
+\subsubsection{Experiment} \label{subsubsec:tusk_experiment}
+
+\subsubsection{Results} \label{subsubsec:tusk_results}
+
+Result plots comparison: NF Ptycho, INR w/ probe (FFC data unusable), Tusk sample with Samis Probe as init
+

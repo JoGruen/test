@@ -1,12 +1,176 @@
 \section{Results on Synthetic Data} \label{sec:results_syn}
 
+As in real measurements it is hardly possible to verify the quality of the reconstructions, a ground truth is crucial and we can furthermore eliminate typical uncertainties of real experiments such as vibrations, shifts, variations in the illumination, or wrongly measured distances in the setup.
+Hence, we will first present a synthetic experiment with and without a structured illumination to also see the effect of flat-field correction and probe retrieval. 
 
-select some/all of
-\begin{itemize}
-	\item no probe
-	\item probe given
-	\item do FFC
-	\item reconstruct probe as array (How to Initialize?!)
-\end{itemize}
+\subsection{Experiment} \label{subsec:results_syn_experiment}
+% Sample
+The synthetic experiment uses a sample which is composed of 62 elliptical cylinders, cones, ellipsoids, Gaussians and paraboloids of different sizes. To have different refractive indices and not rely on single materials, each object consists of one material of Silver (Ag), Gold (Au), Copper (Cu), Iron (Fe), or Magnesium (Mg), which are in a big range of different \( \frac{\delta}{\beta} \)-ratios, see \eqref{eq:refr_idx}.
+The objects orientation and distribution in space is random.\\
+% Measurement
+The projections for \( 400 \) angles are calculated using the tomosipo python package \cite{hendriksen-2021-tomos} and then propagated according to \eqref{eq:propagation} and \eqref{eq:measurement}.
+For a realistic simulation we assume Poisson noise on the measurements.
+In the synthetic acquisition process, we assumed comparable parameters to real experiments which we will also see in \cref{sec:results_real}.
+The distances \( z_{01}=~\)~\qty{0.3}{\m} and \( z_{12}=~\)~\qty{19.702}{\m} result in a magnification of \( M = 65.67 \).
+Together with a pixel size of \qty{13}{\um} on a \qty{1024}{\px}~\(\times\)~\qty{1024}{\px} detector and an X-ray energy of \qty{17}{\keV} we end up at a Fresnel number of \num{1.819e-3}.
+The experiments were conducted with and without a structured illumination, where the latter corresponds to a perfectly working flatfield division \eqref{eq:ffc}.
+The illumination which was used for the simulations was obtained from a [add details].\\
+Measured holograms for the two cases, as well as an empty measurement and the probe used for the simulations can be found in \cref{fig:syn-measurements}.
+The discontinuities on the right most image are phase wraps which disappear in our probe modelling \eqref{eq:incoming_wave_field}.
+The projection of the object leading to these measurements can be found in \cref{fig:syn-proj-no_probe} on the left.
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Measurements.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
 
- 
+    \caption{
+      Measurements of the synthetic sample, without and with probe.
+      In the middle we have the flatfield and corresponding \( A_\emptyset \) and \( \varphi_\emptyset \) from \eqref{eq:incoming_wave_field}
+    }
+    \label{fig:syn-measurements}
+\end{figure}\\
+% Reference Methods
+The reconstructions obtained by the INR-based approach presented here are compared to two state of the art two-step reconstruction methods. The python package HoToPy \cite{Lucht2025_hotopy} is used for the TikhonovTV method and Holowizard \cite{dora_2026_holowizard} for the artifact-supressing reconstruction method (ASRM) \cite{doraArtifactsuppressingReconstructionStrongly2024}.
+Both phase retrieval algorithms were joined by filtered backprojection (FBP) to obtain 3D volumes in the second step.
+The TikhonovTV method by Lucht \textit{et al.} was only working when applying a \textit{single-material constraint}, i.e. a fixed ratio between phase shift \(  \delta \) and absorption \( \beta \).
+This strong but physically incorrect prior leads to a fast convergence and for the synthetic sample used here, the total variation regularization is very suitable as all objects apart from the Gaussians have a constant density.
+\\
+% Metrics
+To assess the quality of the different reconstructions obtained, Peak Signal-to Noise Ratio (PSNR), Structural Similarity Index (SSIM), and Learned Perceptual Image Patch Similarity (LPIPS) scores were taken on normalized images, i.e.
+after scaling them to \( \left[ 0,1\right]^{n \times n} \).
+On the phase images we considered the element-wise absolute value to this end.
+For the LPIPS score which we applied with an alex-type network as backbone, color images were mimicked by repeating the images across all three color channels.
+
+\subsection{Results} \label{subsec:results_syn_results}
+In \cref{fig:syn-proj-no_probe,fig:syn-sli-no_probe}, the reconstructions obtained from the data set without structured illumination, can be found. Projections of the resulting 3D volumes are shown in \cref{fig:syn-proj-no_probe} and the corresponding center slices are displayed in \cref{fig:syn-sli-no_probe}.
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Projected_Phase_no_probe.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Projected_Absorption_no_probe.pdf}
+    
+
+    \caption{Projections reconstructed from simulated data without structured probe.\\
+    The performance metrics show the superiority of the 3D consistent INR reconstruction with a slight advantage of the model trained with the additional \( \frac{\delta}{\beta} \)-regularizer.}
+    \label{fig:syn-proj-no_probe}
+\end{figure}
+The second and third image from the left show our method with and without the additional regularization term \eqref{eq:d/b_regularization} in the loss function used during training.
+When looking at the projections in \cref{fig:syn-proj-no_probe} we see a clear advantage of the INR-based end-to-end reconstructions across most of the performance metrics.
+The SSIM was not the most reliable metric in the evaluation of these experiments, as the score for the background was very different in some cases and heavily influenced the final score which is the mean over the whole image. \\ 
+For the reconstructed absorption, the INR-based approaches also perform well, especially when we consider that the absorption by the TikhonovTV-method is obtained by scaling the retrieved phase according to the prior known \( \frac{\delta}{\beta} \)-ratio, which constrains all applications to single materials.
+Because the INRs architecture connects the phase and absorption, as it predicts both together (see \cref{fig:hash_encoding}) the reconstruction without the \( R_{\delta,\beta} \) from \eqref{eq:d/b_regularization} is also able to deliver decent absorption reconstructions, but the enforcing it explicitly in the loss function further improves the result.
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Phase_no_probe.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Absorption_no_probe.pdf}
+    
+
+    \caption{Center slices reconstructed from simulated data without structured probe.\\
+    The performance metrics show the superiority of the 3D consistent INR reconstruction with an advantage to the model trained with the additional \( \frac{\delta}{\beta} \)-regularizer.}
+    \label{fig:syn-sli-no_probe}
+\end{figure}
+
+This advantage is visible in \cref{fig:syn-sli-no_probe} where we see that the reconstructions of the phase differ significantly in the center of the top left ellipse with a clear advantage to the INR reconstruction with \(  R_{\delta,\beta} \).
+As edges in the phase give the strongest signal in near-field holography [citation?], their reconstruction works well.
+But the low-frequency information which is crucial for the center of the ellipse is rather encoded in the absorption, hence a coupling of \( \delta \) and \( \beta \) that reflects the diversity of materials dramatically improves the reconstruction.
+In the zoom-ins it is visible, that the INR-based approaches reproduce the different contrasts for phase and absorption much better than TikhonovTV + FBP.
+The ASRM-based result suffers from artificially enhanced edges in the phase, while the absorption is dominated by streaking artifacts, which originate from very inhomogenous projections.\\
+
+By including a structured illumination into the simulation as done in \cref{fig:syn-proj-probe, syn-sliprobe} we step closer to real measurements.
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Projected_Phase_probe.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Projected_Absorption_probe.pdf}
+    
+
+    \caption{Projections reconstructed from simulated data with structured probe.\\
+    PSNR and LPIPS show the superiority of the 3D consistent INR reconstruction with probe retrieval.
+    The different performance in the SSIM is due to background a high background sensitivity, which dominates the mean.}
+    \label{fig:syn-proj-probe}
+\end{figure}
+The problem of course gets harder as we either increase the complexity of the optimization problem by additionally finding the illumination as a \( \mathbb{C}^{n \times n}\)-matrix, or introducing an error into the measurements by conducting the physically incorrect flat-field division \eqref{eq:ffc}.
+This is reflected in a drop across the performance metrics is expected and also when looking at the images, there is a difference.
+Notably, the INR-reconstruction with probe retrieval gets the best results.
+In the center slices \cref{fig:syn-sli-probe} we see artifacts around the rotation axis for all reconstructions on flat-field corrected data, which are not presented if we also reconstruct a probe.
+The absorption is significantly worse than in the reconstructions based on data without a simulated probe across all methods.
+The structure is only roughly sketched with quite smooth edges and dominated by artifacts for the INR and ASRM + FBP method, which are the only ones reconstructing an absorption that could fundamentally differ from the reconstructed phase.
+
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \includegraphics[width=\textwidth]{imgs/Phase_probe.pdf}
+    \par\vspace{0.5em} % Spacing between rows
+    
+    % Row 2
+    \includegraphics[width=\textwidth]{imgs/Absorption_probe.pdf}
+    
+
+    \caption{Center slices reconstructed from simulated data with structured probe.\\
+    Performance metrics and the absence of artifacts show the superiority of the 3D consistent INR reconstruction with probe retrieval.
+    Among the reconstructions based on flatfield-corrected data which suffer artifacts around the center of rotation, the INR-based approach still performs best.}
+    \label{fig:syn-sli-probe}
+\end{figure}
+\begin{table}
+\caption{Comparison of PSNR and SSIM evaluated on the full 3D volume, i.e. \( 1024^3 \) voxels after normalizing the values to unit range.
+The INR-based approaches clearly show the best performance, as indicated by the green cells for the best result per column.}
+\centering
+\small
+\begin{tblr}{
+  cell{1}{2} = {c=2}{c},
+  cell{1}{4} = {c=2}{c},
+  cell{3}{2} = {bg=green!20},
+  cell{4}{3} = {bg=green!20},
+  cell{3}{4} = {bg=green!20},
+  cell{3}{5} = {bg=green!20},
+  hline{3},
+  vline{2},
+  vline{4}
+}
+                            & Phase &      & Absorption &      \\
+  Method                    & PSNR  & SSIM & PSNR       & SSIM \\
+  INR with probe retrieval  & 34.56 & 0.87 & 33.45      & 0.97 \\
+  INR with FFC              & 31.52 & 0.91 & 30.62      & 0.92 \\
+  TikhonovTV + FBP with FFC & 22.33 & 0.79 & 22.14      & 0.79 \\
+  ASRM + FBP with FFC       & 22.94 & 0.64 & 25.34      & 0.63
+\end{tblr}
+\end{table}
+
+% \usepackage{tabularray}
+\begin{table}
+\caption{Comparison of performance metrics evaluated on \( 1024^3 \) voxels}
+\centering
+\begin{tblr}{
+  vline{3} = {1-3}{},
+  vline{3} = {6-8}{},
+  vline{4} = {5-6}{},
+  hline{2} = {3-6}{},  
+  cell{5}{4} = {c=3}{},
+  hline{7} = {3-6}{},
+}
+                                   &      & INR with d/b term        & INR no d/b term                    & TikhonovTV+FBP & ASRM+FBP \\
+ & PSNR & 34                       & 34                                      & 34             & 34       \\
+                                   & SSIM & 0.65                     & 0.65                                    & 0.65           & 0.65     \\
+
+\\
+
+                                   &      &                          & Reconstruction on Flatfield-corrected data &                &          \\
+                                   &      & INR + probe retrieval & INR                                     & TikhonovTV+FBP & ASRM+FBP \\
+    & PSNR & 34                       & 34                                      & 34             & 34       \\
+                                   & SSIM & 0.65                     & 0.65                                    & 0.65           & 0.65     
+\end{tblr}
+\end{table}
+
+\newpage

@@ -37,10 +37,10 @@ is the set of points of the ray hitting the detector at $(x,y)$ when the sample 
 The illumination is modeled similar to the object, i.e. for the incoming wave
 field $\Psi_\emptyset$ we have
 \begin{equation}
-  \Psi_\emptyset (x,y) = \exp \left(-  \im \psi_\emptyset(x,y) + a_\emptyset(x,y) \right),
-\label{eq:incoming_wave_field}
+  \Psi_\emptyset (x,y) = A_\emptyset\left( x,y \right) \exp \left(-  \im \psi_\emptyset\left( x,y \right) \right),
+  \label{eq:incoming_wave_field}
 \end{equation}
-where \( \psi_\emptyset \) is the phase  offset and \( a_\emptyset \) describes the amplitude of the illumination.
+where \( \psi_\emptyset \) is the phase  offset and \( A_\emptyset \) describes the amplitude of the illumination.
 As all angles in a holotomography scan are acquired consecutively we assume a
 constant probe for the whole dataset, independent of the angle $\varphi \in
 [0, \pi)$. \\
@@ -120,19 +120,19 @@ For coarser grids with fewer nodes the capacity of the lookup-table is sufficien
 and lose injectivity in favor of computational efficiency.
 With \( \bigoplus \) we denote the bit-wise XOR operation, by chosing \( \pi=\begin{pmatrix} 1, \ 654 435 761, \ 805 459 861 \end{pmatrix}\) we decorrelate the dimensions.
 After mapping the nodes to \(  \{0, \ldots, T-1\}   \) we get the corresponding entries in the lookup-table for all surrounding nodes and interpolate trilinear to account for locality.
-The concatenated input of all levels is then fed into the 4-layer multilayer perceptron (MLP) which processes everything to give the final prediction of \(  \delta  \) and \(  \beta  \).
+The concatenated input of all levels is then fed into the 4-layer multilayer perceptron (MLP) which outputs a prediction of \(  \delta  \) and \(  \beta  \) at \( x \).
 For the hidden layers the \textit{LeakyReLU} function is used as activation, the output layer is activated by the \textit{Squareplus} function \cite{barronSquareplusSoftplusLikeAlgebraic2021} to ensure non-negativity and comply with the physics. \\
 When \( N_0 \ll T \ll N_{0}\cdot b^{L-1} \) the unique mapping on the first levels and the different collisions on the higher levels make this representation robust by stochastic arguments.
 To handle the occuring collisions, we utilize the MLP \cite{mullerInstantNeuralGraphics2022}.
-By the big difference in grid size the architecture is capable of representing sharp edges and fine details as well as flat or smooth background regions, and thus overcome the spectral bias very efficiently.
+By the big difference in grid size the architecture is capable of representing sharp edges and fine details as well as flat or smooth background regions, and thus overcome the spectral bias efficiently.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Optimization} \label{subsec:Optimization}
-When representing an object in either way it is required to fit the parameter to the available data.
+When reconstructing an object it is required to fit the parameter to the available data, independent of the representation.
 To this end we will apply a gradient-based optimization scheme that iteratively improves the reconstruction until a minimum of the loss-function is reached.
-In our case parameters mean the entries in the lookup-table, weights and biases of the MLP and the pixels-values of the probe.
+In our case parameters mean the entries in the lookup-table, weights and biases of the MLP and the pixel-values of the probe.
 As we consider one probe for all angles these are \( n^2 \) pixels which is manageable in terms of computational cost and memory requirement.
-We optimize the parameters by minimizing the loss function
+We optimize the parameters \( O_\mathrm{pred} \) and \( \Psi_\mathrm{pred} \) by minimizing the loss function
 \begin{equation}
   \begin{aligned}
    L(O_\mathrm{pred}, \Psi_\mathrm{pred}, \mathcal{I}_{\mathrm{det}, \varphi}, \mathcal{I}_{\mathrm{det}, \emptyset}) =  & \left\| 
@@ -184,19 +184,19 @@ Regularization strategies we apply in the following include \( L_{1}, L_{2} \) a
 R_{\delta,\beta} (O) = \left\| \left| \frac{\delta}{\beta} \right| - \max \left(  b, \left| \frac{\delta}{\beta} \right| \right)  \right\|_{L_2}^2 +  \left\| \left| \frac{\beta}{\delta} \right| - \max \left(   \frac{1}{a}, \left| \frac{\beta}{\delta} \right| \right) \right\|_{L_2}^2, 
   \label{eq:d/b_regularization}
 \end{equation}
-which supports an explicit connection the phase shift and absorption of our object \(  O  \).
+which supports an explicit connection the phase-shift and absorption of the object \(  O  \).
 The first term vanishes as long as \( \left| \frac{\delta}{\beta} \right| \le b \) and increases linearly the bigger \( \left| \frac{\delta}{\beta} \right| \) gets, the second term acts similarly on \( \left| \frac{\beta}{\delta} \right| \).
 The values \( a, b \in \mathbb{R} \) are chosen such that we expect \( \frac{\delta}{\beta} \in \left[ a,b \right]  \) depending on the materials we might know and the X-ray energy, but allows for different materials in comparison to other reconstruction methods \cite{villanueva-perezContrasttransferfunctionPhaseRetrieval2017}.
 \\
-In the Optimization process update all the parameters after the loss is evaluated for one angle.
+In the Optimization process we update all parameters after the loss is evaluated for one angle.
 One remaining challenge is the interaction of different pixels when the waves are propagated through free space, i.e.
 we cannot evaluate the rays independently in measurement space as it is possible for CT \cite{zhaNAFNeuralAttenuation2022}.\\
 Hence, we need to sample \( n \cdot  n \) rays (\(  n^3 \) points) which are projected and propagated to compare them to the measurements \( \mathcal{I}_\mathrm{det} \in \mathbb{R}^{n \times n} \).
 As this becomes extremely memory demanding for highly resolved data, we limit the number of rays for which we calculate gradients to update the INR to \( C_\mathrm{VRAM} \approx 8000 \).
 The progress for large \(  n \) is still slow due to two reasons.
 Firstly we scale the number of points on the ray according to the resolution, i.e. \( \left| \ell_{x,y,\varphi} \right| = n  \), and secondly only \( C_\mathrm{VRAM} \) of the \(  n^2 \) rays (below 1\% for \( n>1000 \)) are used to update the INR.
-But we can accelerate everything massively by using a multi-scale approach similar to Dora \textit{et al.} \cite{doraArtifactsuppressingReconstructionStrongly2024}, which gives reasonable results after short time that serve as initialization for higher resolutions.
-Especially the reconstruction of bigger structures and separation between object and background work well on lower resolutions.\\
+But we can accelerate everything massively by using a multi-scale approach similar to \cite{doraArtifactsuppressingReconstructionStrongly2024,nikitinScalableJointXray2026}, which gives reasonable results after short time that serve as initialization for higher resolutions.
+Especially the reconstruction of bigger low-frequency structures and separation between object and background work well on lower resolutions.\\
 To make the training more stable, we use gradient clipping with which we limit the gradient norm to five times the median of the 100 previous gradient norms. Additionally we use a learning rate scheduler that halves the step size when the loss does not decrease anymore and stops if the learning rate reaches \( 10^{-7} \).
 \\
 Our implementation relies on \textit{PyTorch} and \textit{tiny-cuda-nn} \cite{paszkePyTorchImperativeStyle2019, tiny-cuda-nn}.
